@@ -40,6 +40,7 @@ jobs:
         run: |
           mkdir x64
           cp build-msvc-x64/src/nvapi64.dll x64
+          cp fakenvapi.ini x64
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
