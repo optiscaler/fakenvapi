@@ -9,9 +9,12 @@ Best to use [OptiScaler](https://github.com/cdozdil/OptiScaler/blob/master/Spoof
 
 Just put `nvapi64.dll` next to OptiScaler's dll and fakenvapi will be automatically loaded. If it doesn't then set ``OverrideNvapiDll=true`` in Optiscaler's config file. 
 
+For XeLL support please download [libxell.dll](https://github.com/intel/xess/raw/refs/heads/main/bin/libxell.dll) and place it next to nvapi64.dll.
+
 # Overview
-Supports [LatencyFlex](https://github.com/ishitatsuyuki/LatencyFleX) as well as [AntiLag 2](https://github.com/GPUOpen-LibrariesAndSDKs/AntiLag2-SDK).
-AntiLag 2 is automatically selected when available.
+Supports [LatencyFlex](https://github.com/ishitatsuyuki/LatencyFleX), [AntiLag 2](https://github.com/GPUOpen-LibrariesAndSDKs/AntiLag2-SDK), Vulkan AntiLag+ as well as [XeLL](github.com/intel/xess).
+
+AntiLag 2, Vulkan AntiLag+ or XeLL are automatically selected when available.
 
 AL2 can't be used with native FSR FG as DLSSG-specific Reflex calls are required. LatencyFlex can be used in that case but it will require [forcing it](https://github.com/FakeMichau/fakenvapi/blob/master/fakenvapi.ini#L7C1-L7C18) using the ini file on AL2-supported systems.
 
