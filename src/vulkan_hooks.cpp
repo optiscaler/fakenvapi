@@ -39,7 +39,12 @@ VkResult VulkanHooks::hkvkCreateDevice(VkPhysicalDevice physicalDevice, VkDevice
     pCreateInfo->enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     pCreateInfo->ppEnabledExtensionNames = extensions.data();
 
-    auto result = o_vkCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
+    VkDeviceCreateInfo modifiedCreateInfo = *pCreateInfo;
+    
+    antiLagFeatures.pNext = (void*)modifiedCreateInfo.pNext;
+    modifiedCreateInfo.pNext = &antiLagFeatures;
+
+    auto result = o_vkCreateDevice(physicalDevice, &modifiedCreateInfo, pAllocator, pDevice);
 
     // Can ask for a function from an extension after the device creation
     if (antiLagSupported && o_vkGetDeviceProcAddr) {
