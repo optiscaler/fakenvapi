@@ -27,6 +27,7 @@ class Config {
     bool _save_pcl_to_file = false;
 
     std::mutex update;
+    std::atomic<bool> stop_monitoring = false;
 
     static void get_ini_path(wchar_t* path) {
         HMODULE module = GetModuleHandle(NULL);
@@ -80,20 +81,21 @@ class Config {
         update.unlock();
     }
 
-    FILETIME get_last_write_time(const wchar_t file_path[MAX_PATH]) {
+    FILETIME get_last_write_time(const wchar_t* file_path) {
         WIN32_FILE_ATTRIBUTE_DATA file_info;
         if (GetFileAttributesExW(file_path, GetFileExInfoStandard, &file_info)) {
             return file_info.ftLastWriteTime;
         }
-        FILETIME filetime = { 0, 0 };
-        return filetime;
+
+        spdlog::warn("Failed to get attributes for file");
+        return FILETIME { 0, 0 };
     }
 
     void monitor_config_file() {
         FILETIME last_write_time = get_last_write_time(path);
 
         wchar_t directory[MAX_PATH];
-        std::memcpy(directory, path, MAX_PATH);
+        wcsncpy_s(directory, path, _TRUNCATE);
         wchar_t* last_slash = wcsrchr(directory, L'\\');
         if (last_slash != nullptr) {
             *last_slash = L'\0'; 
@@ -106,11 +108,11 @@ class Config {
             return;
         }
 
-        while (true) {
+        while (!stop_monitoring) {
             if (DWORD wait_status = WaitForSingleObject(change_handle, INFINITE); wait_status == WAIT_OBJECT_0) {
                 FILETIME current_write_time = get_last_write_time(path);
                 if (CompareFileTime(&last_write_time, &current_write_time) != 0) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                     update_config();
                     last_write_time = current_write_time;
                 }
@@ -160,5 +162,11 @@ public:
 
     bool get_save_pcl_to_file() {
         return _save_pcl_to_file;
+    }
+
+    void kill_config_monitoring() {
+        if (!stop_monitoring)
+            spdlog::info("Stopping config monitoring thread");
+        stop_monitoring = true;
     }
 };

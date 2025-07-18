@@ -44,9 +44,21 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
             VulkanHooks::hook_vulkan(vulkan_module);
         }
 
+        {
+            char exe_path[MAX_PATH] = {0};
+            GetModuleFileNameA(nullptr, exe_path, MAX_PATH);
+            const char* exe_name = strrchr(exe_path, '\\');
+            exe_name = exe_name ? exe_name + 1 : exe_path;
+            if (_stricmp(exe_name, "MonsterHunterRise.exe") == 0) {
+                spdlog::info("MonsterHunterRise.exe detected, killing config monitoring");
+                Config::get().kill_config_monitoring();
+            }
+        }
+
         break;
     case DLL_PROCESS_DETACH:
         LowLatencyCtx::get()->deinit_current_tech();
+        Config::get().kill_config_monitoring();
         close_logging();
         LowLatencyCtx::shutdown();
         break;

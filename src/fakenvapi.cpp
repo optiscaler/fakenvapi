@@ -689,8 +689,10 @@ namespace fakenvapi {
         if (ref_count == 0)
             return ERROR_VALUE(NVAPI_API_NOT_INITIALIZED);
 
-        if(--ref_count == 0)
+        if(--ref_count == 0) {
             LowLatencyCtx::get()->deinit_current_tech();
+            Config::get().kill_config_monitoring();
+        }
 
         return OK();
     }
