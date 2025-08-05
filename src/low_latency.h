@@ -38,6 +38,11 @@ private:
     FrameReport frame_reports[64]{};
     std::optional<bool> forced_fg;
     bool fg;
+    uint32_t delay_deinit = 0;
+
+    // Once set, it will be used for all init attempts
+    void* forced_low_latency_context = nullptr;
+    Mode forced_low_latency_tech = Mode::LatencyFlex;
 
     void update_effective_fg_state();
     void update_enabled_override();
@@ -64,6 +69,7 @@ public:
             currently_active_tech->set_fg_type(interpolated, frame_id); 
     }
     void get_low_latency_context(void** low_latency_context, Mode* low_latency_tech);
+    bool set_low_latency_context(void* low_latency_context, Mode low_latency_tech);
 
     // D3D
     NvAPI_Status Sleep(IUnknown* pDevice);

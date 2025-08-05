@@ -10,6 +10,24 @@
 // private
 bool LowLatency::update_low_latency_tech(IUnknown* pDevice) {
     if (!currently_active_tech) {
+        if (forced_low_latency_context && forced_low_latency_tech == Mode::AntiLag2) {
+            currently_active_tech = new AntiLag2();
+            if (currently_active_tech->init_using_ctx(forced_low_latency_context)) {
+                spdlog::info("LowLatency algo: AntiLag 2 (via context)");
+                return true;
+            }
+
+            delete currently_active_tech;
+        } else if (forced_low_latency_context && forced_low_latency_tech == Mode::XeLL) {
+            currently_active_tech = new XeLL();
+            if (currently_active_tech->init_using_ctx(forced_low_latency_context)) {
+                spdlog::info("LowLatency algo: XeLL (via context)");
+                return true;
+            }
+            
+            delete currently_active_tech;
+        }
+
         if (!Config::get().get_force_latencyflex()) {
             currently_active_tech = new AntiLag2();
             if (currently_active_tech->init(pDevice)) {
@@ -40,13 +58,25 @@ bool LowLatency::update_low_latency_tech(IUnknown* pDevice) {
     bool change_detected = last_force_latencyflex != force_latencyflex;
     last_force_latencyflex = force_latencyflex;
     
-    if (change_detected) {
-        if (deinit_current_tech()) {
-            return update_low_latency_tech(pDevice); // call back to reinit
-        } else {
+    auto try_reinit = [&]() -> bool {
+        if (!deinit_current_tech()) {
             spdlog::error("Couldn't deinitialize low latency tech");
             return false;
         }
+        return update_low_latency_tech(pDevice);
+    };
+
+    if (change_detected) {
+        if (currently_active_tech && currently_active_tech->get_mode() == Mode::AntiLag2) {
+            delay_deinit = 50;
+        } else {
+            return try_reinit();
+        }
+    }
+
+    if (delay_deinit > 0) {
+        if (--delay_deinit == 0)
+            return try_reinit();
     }
 
     return true;
@@ -127,8 +157,7 @@ NvAPI_Status LowLatency::SetSleepMode(IUnknown* pDevice, NV_SET_SLEEP_MODE_PARAM
     return OK();
 }
 
-NvAPI_Status LowLatency::GetSleepStatus(IUnknown *pDevice, NV_GET_SLEEP_STATUS_PARAMS *pGetSleepStatusParams)
-{
+NvAPI_Status LowLatency::GetSleepStatus(IUnknown *pDevice, NV_GET_SLEEP_STATUS_PARAMS *pGetSleepStatusParams) {
     if (!update_low_latency_tech(pDevice))
         return ERROR();
 

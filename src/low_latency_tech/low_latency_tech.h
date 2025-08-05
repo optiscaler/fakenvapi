@@ -59,16 +59,19 @@ protected:
     ForceReflex low_latency_override = ForceReflex::InGame;
     bool low_latency_enabled = false;
     bool effective_fg_state = false;
+    bool inited_using_context = false;
 
 public:
     LowLatencyTech():
         current_call_spot(CallSpot::SimulationStart), 
         low_latency_override(ForceReflex::InGame), 
         low_latency_enabled(false), 
-        effective_fg_state(false) {}
+        effective_fg_state(false),
+        inited_using_context(false) {}
     virtual ~LowLatencyTech() {}
 
     virtual bool init(IUnknown* pDevice) = 0;
+    virtual bool init_using_ctx(void* context) = 0;
     virtual void deinit() = 0;
 
     virtual Mode get_mode() = 0;

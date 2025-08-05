@@ -98,8 +98,30 @@ bool XeLL::init(IUnknown *pDevice) {
     return result == XELL_RESULT_SUCCESS;
 }
 
+bool XeLL::init_using_ctx(void* context) {
+    // XeLL logging won't work
+    if (!load_dll()) {
+        spdlog::error("XeLL init_using_ctx failed to load libxell.dll");
+        return false;
+    }
+
+    if (!context) {
+        spdlog::error("XeLL init_using_ctx called with null context");
+        return false;
+    }
+
+    ctx = reinterpret_cast<xell_context_handle_t>(context);
+    inited_using_context = true;
+    spdlog::info("XeLL initialized using existing context");
+
+    return true;
+}
+
 void XeLL::deinit() {
-    if (ctx) {
+    if (inited_using_context) {
+        spdlog::info("XeLL deinit called while inited using context, skipping deinitialization");
+        inited_using_context = false;
+    } else if (ctx) {
         o_xellDestroyContext(ctx);
         ctx = nullptr;
         spdlog::info("XeLL deinitialized");

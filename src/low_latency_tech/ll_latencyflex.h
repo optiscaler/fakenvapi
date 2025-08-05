@@ -9,6 +9,7 @@ private:
     lfx::LatencyFleX *ctx = nullptr;
 
     std::mutex mutex;
+    std::mutex deinit_mutex;
 
     uint32_t minimum_interval_us = 0;
 
@@ -30,6 +31,7 @@ public:
 
     // From LowLatencyTech
     bool init(IUnknown *pDevice) override;
+    bool init_using_ctx(void* context) override;
     void deinit() override;
 
     Mode get_mode() override { return Mode::LatencyFlex; };

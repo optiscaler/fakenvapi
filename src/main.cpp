@@ -200,6 +200,7 @@ namespace fakenvapi {
             INSERT_AND_RETURN_WHEN_EQUALS(Fake_InformPresentFG)
             INSERT_AND_RETURN_WHEN_EQUALS(Fake_GetAntiLagCtx)
             INSERT_AND_RETURN_WHEN_EQUALS(Fake_GetLowLatencyCtx)
+            INSERT_AND_RETURN_WHEN_EQUALS(Fake_SetLowLatencyCtx)
 
             spdlog::debug("{}: not implemented, placeholder given", it->func);
             return registry.insert({ id, (void*)placeholder }).first->second;

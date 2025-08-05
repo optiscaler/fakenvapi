@@ -1,4 +1,4 @@
-// Version 1.3.0
+// Version 1.3.5
 
 #pragma once
 
@@ -11,7 +11,8 @@ inline struct FAKENVAPI_INTERFACE_TABLE fakenvapi_interface_table[] = {
     { "Fake_InformFGState", 0x21382138 },
     { "Fake_InformPresentFG", 0x21392139 },
     { "Fake_GetAntiLagCtx", 0x21402140 },
-    { "Fake_GetLowLatencyCtx", 0x21412141 }
+    { "Fake_GetLowLatencyCtx", 0x21412141 },
+    { "Fake_SetLowLatencyCtx", 0x21422142 }
 };
 
 enum class Mode {
@@ -32,3 +33,5 @@ NvAPI_Status __cdecl Fake_InformPresentFG(bool frame_interpolated, uint64_t refl
 NvAPI_Status __cdecl Fake_GetAntiLagCtx(void** antilag2_context);
 
 NvAPI_Status __cdecl Fake_GetLowLatencyCtx(void** low_latency_context, Mode* mode);
+
+NvAPI_Status __cdecl Fake_SetLowLatencyCtx(void* low_latency_context, Mode mode);

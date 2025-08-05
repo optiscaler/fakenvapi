@@ -6,6 +6,8 @@ void LatencyFlex::lfx_sleep(uint64_t reflex_frame_id) {
     if (!is_enabled())
         return;
 
+    deinit_mutex.lock();
+
     static LFXMode previous_lfx_mode = Config::get().get_latencyflex_mode();
     LFXMode lfx_mode = Config::get().get_latencyflex_mode();
 
@@ -66,6 +68,8 @@ void LatencyFlex::lfx_sleep(uint64_t reflex_frame_id) {
     if (ctx)
         ctx->BeginFrame(local_frame_id, target, timestamp);
     mutex.unlock();
+
+    deinit_mutex.unlock();
 }
 
 void LatencyFlex::lfx_end_frame(uint64_t reflex_frame_id) {
@@ -90,12 +94,23 @@ bool LatencyFlex::init(IUnknown *pDevice) {
     return false;
 };
 
+// Unsupported
+bool LatencyFlex::init_using_ctx(void* context) {
+    spdlog::error("LatencyFleX init_using_ctx is not supported");
+    inited_using_context = false;
+    return false;
+}
+
 void LatencyFlex::deinit() {
+    deinit_mutex.lock();
+
     if (ctx) {
         delete ctx;
         ctx = nullptr;
         spdlog::info("LatencyFlex deinitialized");
     }
+
+    deinit_mutex.unlock();
 };
 
 void* LatencyFlex::get_tech_context() {

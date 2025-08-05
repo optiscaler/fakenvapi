@@ -23,6 +23,7 @@ public:
 
     // From LowLatencyTech
     bool init(IUnknown *pDevice) override;
+    bool init_using_ctx(void* context) override;
     void deinit() override;
 
     Mode get_mode() override { return Mode::AntiLag2; };
