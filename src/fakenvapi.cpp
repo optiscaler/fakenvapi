@@ -718,9 +718,9 @@ namespace fakenvapi {
             return ERROR_VALUE(NVAPI_INVALID_ARGUMENT);
 
         Mode mode {};
-        LowLatencyCtx::get()->get_low_latency_context(antilag2_context, &mode);
+        bool result = LowLatencyCtx::get()->get_low_latency_context(antilag2_context, &mode);
 
-        if (*antilag2_context && mode == Mode::AntiLag2) {
+        if (result && *antilag2_context && mode == Mode::AntiLag2) {
             return OK();
         }
 
@@ -732,10 +732,9 @@ namespace fakenvapi {
         if (!low_latency_context || !mode)
             return ERROR_VALUE(NVAPI_INVALID_ARGUMENT);
 
-        LowLatencyCtx::get()->get_low_latency_context(low_latency_context, mode);
+        bool result = LowLatencyCtx::get()->get_low_latency_context(low_latency_context, mode);
 
-        // Return OK even if the context is null
-        return OK();
+        return result ? OK() : ERROR();
     }
 
     NvAPI_Status __cdecl Fake_SetLowLatencyCtx(void* low_latency_context, Mode mode) {

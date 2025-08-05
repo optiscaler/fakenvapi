@@ -68,7 +68,7 @@ public:
         if (currently_active_tech)
             currently_active_tech->set_fg_type(interpolated, frame_id); 
     }
-    void get_low_latency_context(void** low_latency_context, Mode* low_latency_tech);
+    bool get_low_latency_context(void** low_latency_context, Mode* low_latency_tech);
     bool set_low_latency_context(void* low_latency_context, Mode low_latency_tech);
 
     // D3D

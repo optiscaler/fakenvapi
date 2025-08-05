@@ -32,6 +32,10 @@ NvAPI_Status __cdecl Fake_InformPresentFG(bool frame_interpolated, uint64_t refl
 // Deprecated
 NvAPI_Status __cdecl Fake_GetAntiLagCtx(void** antilag2_context);
 
+// return NVAPI_ERROR if there is no low latency context
+// the returned low_latency_context can be nullptr even if the call is successful
 NvAPI_Status __cdecl Fake_GetLowLatencyCtx(void** low_latency_context, Mode* mode);
 
+// when low_latency_context is not null, NVAPI_ERROR will be returned if init using the context fails
+// if low_latency_context is nullptr, low latency inited using the context will be uninited
 NvAPI_Status __cdecl Fake_SetLowLatencyCtx(void* low_latency_context, Mode mode);

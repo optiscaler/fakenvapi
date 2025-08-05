@@ -78,9 +78,9 @@ bool LowLatency::deinit_current_tech() {
     return false;
 }
 
-void LowLatency::get_low_latency_context(void** low_latency_context, Mode* low_latency_tech) {
-    if (!currently_active_tech || !low_latency_context)
-        return;
+bool LowLatency::get_low_latency_context(void** low_latency_context, Mode* low_latency_tech) {
+    if (!currently_active_tech || !low_latency_context || !low_latency_tech)
+        return false;
 
     *low_latency_context = currently_active_tech->get_tech_context();
     *low_latency_tech = currently_active_tech->get_mode();
@@ -90,6 +90,8 @@ void LowLatency::get_low_latency_context(void** low_latency_context, Mode* low_l
         *low_latency_context = nullptr;
         delay_deinit = 1;
     }
+
+    return true;
 }
 
 bool LowLatency::set_low_latency_context(void* low_latency_context, Mode low_latency_tech) {

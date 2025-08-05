@@ -39,7 +39,12 @@ public:
     void set_low_latency_override(ForceReflex low_latency_override) override { this->low_latency_override = low_latency_override; };
     void set_effective_fg_state(bool effective_fg_state) override { this->effective_fg_state = effective_fg_state; };
 
-    bool is_enabled() override { return low_latency_override != ForceReflex::InGame ? low_latency_override == ForceReflex::ForceEnable : low_latency_enabled; };
+    bool is_enabled() override { 
+        if (inited_using_context)
+            return true;
+        else
+            return low_latency_override != ForceReflex::InGame ? low_latency_override == ForceReflex::ForceEnable : low_latency_enabled; 
+    };
 
     void get_sleep_status(SleepParams* sleep_params) override;
     void set_sleep_mode(SleepMode* sleep_mode) override;
