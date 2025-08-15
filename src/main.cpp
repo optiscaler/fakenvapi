@@ -13,6 +13,7 @@
 #include "fakenvapi.h"
 #include "vulkan_hooks.h"
 #include "../version.h"
+#include "al2_proxy.h"
 
 #include "log.h"
 #include "config.h"
@@ -54,6 +55,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
                 Config::get().kill_config_monitoring();
             }
         }
+
+        AL2Proxy::hookAntiLag();
 
         break;
     case DLL_PROCESS_DETACH:

@@ -9,6 +9,7 @@ src = files([
     'low_latency_tech/ll_xell.cpp',
     'low_latency_tech/ll_latencyflex.cpp',
     'vulkan_hooks.cpp',
+    'al2_proxy.cpp',
     'util.cpp',
     'log.cpp'
 ])

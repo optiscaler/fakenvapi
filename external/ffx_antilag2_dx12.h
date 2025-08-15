@@ -124,6 +124,10 @@ namespace AntiLag2DX12 {
     };
     static_assert(sizeof(APIData_v2) == 176, "Check structure packing compiler settings.");
 
+#if 1
+    typedef HRESULT(__cdecl* PFNAmdExtD3DCreateInterface)( IUnknown* pOuter, REFIID riid, void** ppvObject );
+#endif
+
     inline HRESULT Initialize( Context* context, ID3D12Device* device )
     {
         HRESULT hr = E_INVALIDARG;
@@ -132,7 +136,9 @@ namespace AntiLag2DX12 {
             HMODULE hModule = GetModuleHandleA("amdxc64.dll");
             if ( hModule )
             {
+#if 0
                 typedef HRESULT(__cdecl* PFNAmdExtD3DCreateInterface)( IUnknown* pOuter, REFIID riid, void** ppvObject );
+#endif
                 PFNAmdExtD3DCreateInterface AmdExtD3DCreateInterface = reinterpret_cast<PFNAmdExtD3DCreateInterface>( (VOID*)GetProcAddress(hModule, "AmdExtD3DCreateInterface") );
                 if ( AmdExtD3DCreateInterface )
                 {

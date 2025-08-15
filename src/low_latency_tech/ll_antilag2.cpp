@@ -1,4 +1,5 @@
 #include "ll_antilag2.h"
+#include <al2_proxy.h>
 
 inline HRESULT AntiLag2::al2_sleep() {
     int max_fps = 0;
@@ -47,7 +48,9 @@ bool AntiLag2::init(IUnknown* pDevice) {
         ID3D12Device* device = nullptr;
         HRESULT hr = pDevice->QueryInterface(__uuidof(ID3D12Device), reinterpret_cast<void**>(&device));
         if (hr == S_OK) {
+            AL2Proxy::disableAl2Kill = true;
             HRESULT init_return = AMD::AntiLag2DX12::Initialize(&dx12_ctx, device);
+            AL2Proxy::disableAl2Kill = false;
             if (init_return == S_OK) {
                 spdlog::info("AntiLag 2 DX12 initialized");
                 return true;
