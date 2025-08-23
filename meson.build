@@ -27,6 +27,7 @@ xell_headers = include_directories('./external/xell/inc')
 detours_headers = include_directories('./external/detours/include')
 vulkan_headers = include_directories('./external/vulkan/include')
 nvapi_headers = include_directories('./external/nvapi')
+magic_enum_headers = include_directories('./external/magic_enum')
 fakenvapi_headers = include_directories('./include')
 
 lib_detours = declare_dependency(

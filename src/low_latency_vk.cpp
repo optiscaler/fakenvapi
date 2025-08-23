@@ -151,7 +151,7 @@ NvAPI_Status LowLatency::SetLatencyMarker(HANDLE vkDevice, NV_VULKAN_LATENCY_MAR
     // This cast is not ideal as it needs to be cast to VkDevice while knowing it's vulkan
     currently_active_tech->set_marker((IUnknown*)vkDevice, &marker_params);
 
-    spdlog::trace("{}: {}", marker_to_name(pSetLatencyMarkerParams->markerType), pSetLatencyMarkerParams->frameID);
+    spdlog::trace("{}: {}", magic_enum::enum_name(marker_params.marker_type), marker_params.frame_id);
 
     return NVAPI_OK;
 }

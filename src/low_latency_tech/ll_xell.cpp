@@ -1,6 +1,7 @@
 #include "ll_xell.h"
 
 #include "spoof.h"
+#include <magic_enum.hpp>
 
 bool XeLL::load_dll() {
     if (!xell_dll)
@@ -48,7 +49,7 @@ void XeLL::xell_sleep(uint32_t frame_id) {
 
 void XeLL::add_marker(uint32_t frame_id, xell_latency_marker_type_t marker) {
     if (!sent_sleep_frame_ids[frame_id%64]) {
-        spdlog::debug("Skipping reporting a marker for XeLL because sleep wasn't sent for frame id: {}", frame_id);
+        spdlog::debug("Skipping reporting {} for XeLL because sleep wasn't sent for frame id: {}", magic_enum::enum_name(marker), frame_id);
         return;
     }
 
@@ -112,7 +113,24 @@ bool XeLL::init_using_ctx(void* context) {
 
     ctx = reinterpret_cast<xell_context_handle_t>(context);
     inited_using_context = true;
-    spdlog::info("XeLL initialized using existing context");
+    spdlog::info("XeLL initialized using existing context: {:X}", (uint64_t)ctx);
+
+    o_xellSetLoggingCallback(ctx, XELL_LOGGING_LEVEL_DEBUG, [](const char* message, xell_logging_level_t loggingLevel) {
+        switch (loggingLevel) {
+            case XELL_LOGGING_LEVEL_DEBUG:
+                spdlog::debug("XeLL: {}", message);
+            break;
+            case XELL_LOGGING_LEVEL_INFO:
+                spdlog::info("XeLL: {}", message);
+            break;
+            case XELL_LOGGING_LEVEL_WARNING:
+                spdlog::warn("XeLL: {}", message);
+            break;
+            case XELL_LOGGING_LEVEL_ERROR:
+                spdlog::error("XeLL: {}", message);
+            break;
+        }
+    });
 
     return true;
 }

@@ -46,7 +46,6 @@ private:
 
     void update_effective_fg_state();
     void update_enabled_override();
-    std::string marker_to_name(uint32_t marker);
 
     // D3D
     bool update_low_latency_tech(IUnknown* pDevice);

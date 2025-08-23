@@ -9,6 +9,7 @@
 
 #include "log.h"
 #include <fakenvapi_inc.h>
+#include <magic_enum.hpp>
 
 #define INVALID_ID 0xFFFFFFFFFFFFFFFF
 
