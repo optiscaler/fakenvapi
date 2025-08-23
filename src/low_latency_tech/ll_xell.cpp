@@ -170,13 +170,26 @@ void XeLL::set_sleep_mode(SleepMode* sleep_mode) {
     xell_sleep_params.minimumIntervalUs = sleep_mode->minimum_interval_us;
     xell_sleep_params.bLowLatencyBoost = sleep_mode->low_latency_boost;
 
-    auto result = o_xellSetSleepMode(ctx, &xell_sleep_params);
+    static uint32_t last_bLowLatencyMode = 0;
+    static uint32_t last_minimumIntervalUs = 0;
+    static uint32_t last_bLowLatencyBoost = 0;
+
+    if (xell_sleep_params.bLowLatencyMode != last_bLowLatencyMode ||
+        xell_sleep_params.minimumIntervalUs != last_minimumIntervalUs ||
+        xell_sleep_params.bLowLatencyBoost != last_bLowLatencyBoost)
+    {
+        auto result = o_xellSetSleepMode(ctx, &xell_sleep_params);
+
+        last_bLowLatencyMode = xell_sleep_params.bLowLatencyMode;
+        last_minimumIntervalUs = xell_sleep_params.minimumIntervalUs;
+        last_bLowLatencyBoost = xell_sleep_params.bLowLatencyBoost;
+    }
 }
 
 void XeLL::set_marker(IUnknown* pDevice, MarkerParams* marker_params) {
     switch (marker_params->marker_type) {
         case MarkerType::SIMULATION_START:
-            xell_sleep(marker_params->frame_id);
+            simulation_start_last_id = marker_params->frame_id;
             add_marker(marker_params->frame_id, XELL_SIMULATION_START);
         break;
         case MarkerType::SIMULATION_END:
@@ -200,4 +213,10 @@ void XeLL::set_marker(IUnknown* pDevice, MarkerParams* marker_params) {
         default:
         break;
     }
+}
+
+void XeLL::sleep() {
+    // This can either be better than sleeping in XELL_SIMULATION_START
+    // or be a total mess if +1 is not correct
+    xell_sleep(simulation_start_last_id + 1);
 }

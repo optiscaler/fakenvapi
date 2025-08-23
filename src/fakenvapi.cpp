@@ -1,4 +1,5 @@
 #include "fakenvapi.h"
+#include "fakexell.h"
 
 LowLatency* LowLatencyCtx::lowlatency_ctx = nullptr;
 static auto init_mutex = std::mutex{};
@@ -731,6 +732,9 @@ namespace fakenvapi {
     NvAPI_Status __cdecl Fake_GetLowLatencyCtx(void** low_latency_context, Mode* mode) {
         if (!low_latency_context || !mode)
             return ERROR_VALUE(NVAPI_INVALID_ARGUMENT);
+
+        // Random place that I know Opti will call
+        fakexell::Init();
 
         bool result = LowLatencyCtx::get()->get_low_latency_context(low_latency_context, mode);
 

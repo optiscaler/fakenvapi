@@ -11,6 +11,7 @@
 #endif
 #include <nvapi.h>
 #include "fakenvapi.h"
+#include "fakexell.h"
 #include "vulkan_hooks.h"
 #include "../version.h"
 #include "al2_proxy.h"
@@ -22,6 +23,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     switch (fdwReason) {
     case DLL_PROCESS_ATTACH:
         LowLatencyCtx::init();
+        LowLatencyCtxXell::init();
 
         Config::get().init_config();
         if (Config::get().get_enable_logs())
@@ -61,9 +63,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
         break;
     case DLL_PROCESS_DETACH:
         LowLatencyCtx::get()->deinit_current_tech();
+        LowLatencyCtxXell::get()->deinit_current_tech();
         Config::get().kill_config_monitoring();
         close_logging();
         LowLatencyCtx::shutdown();
+        LowLatencyCtxXell::shutdown();
         break;
     }
     return TRUE;

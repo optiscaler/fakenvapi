@@ -1,6 +1,7 @@
 src = files([
     'main.cpp',
     'fakenvapi.cpp',
+    'fakexell.cpp',
     'low_latency.cpp',
     'low_latency_d3d.cpp',
     'low_latency_vk.cpp',
