@@ -83,8 +83,24 @@ bool LowLatency::update_low_latency_tech(IUnknown* pDevice) {
 }
 
 void LowLatency::get_latency_result(NV_LATENCY_RESULT_PARAMS* pGetLatencyParams) {
-    for (auto i = 0; i < 64; i++) {
-        memcpy(&pGetLatencyParams->frameReport[i], &frame_reports[i], sizeof(frame_reports[i]));
+    // TODO: report all zeros if not enough data
+
+    size_t minIdx = 0;
+    uint64_t minID = frame_reports[0].frameID;
+    for (size_t i = 1; i < FRAME_REPORTS_BUFFER_SIZE; i++) {
+        if (frame_reports[i].frameID < minID) {
+            minID = frame_reports[i].frameID;
+            minIdx = i;
+        }
+    }
+
+    // Copy starting from older before wrapping around
+    size_t firstChunk = std::min<uint64_t>(NVAPI_BUFFER_SIZE, FRAME_REPORTS_BUFFER_SIZE - minIdx);
+    std::memcpy(pGetLatencyParams->frameReport, frame_reports + minIdx, firstChunk * sizeof(FrameReport));
+
+    // Copy the rest after wrapping around
+    if (firstChunk < NVAPI_BUFFER_SIZE) {
+        std::memcpy(pGetLatencyParams->frameReport + firstChunk, frame_reports, (NVAPI_BUFFER_SIZE - firstChunk) * sizeof(FrameReport));
     }
 }
 
@@ -92,7 +108,13 @@ void LowLatency::add_marker_to_report(NV_LATENCY_MARKER_PARAMS* pSetLatencyMarke
     auto current_timestamp = get_timestamp() / 1000;
     static auto last_sim_start = current_timestamp;
     static auto _2nd_last_sim_start = current_timestamp;
-    auto current_report = &frame_reports[pSetLatencyMarkerParams->frameID % 64];
+    auto current_report = &frame_reports[pSetLatencyMarkerParams->frameID % FRAME_REPORTS_BUFFER_SIZE];
+
+    if (current_report->frameID != pSetLatencyMarkerParams->frameID) 
+    {
+        *current_report = FrameReport{};
+    }
+
     current_report->frameID = pSetLatencyMarkerParams->frameID;
     current_report->gpuFrameTimeUs = (uint32_t)(last_sim_start - _2nd_last_sim_start);
     current_report->gpuActiveRenderTimeUs = 100;

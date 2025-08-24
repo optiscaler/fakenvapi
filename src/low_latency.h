@@ -12,6 +12,9 @@
 #include "util.h"
 #include <optional>
 
+#define FRAME_REPORTS_BUFFER_SIZE 70
+#define NVAPI_BUFFER_SIZE 64
+
 struct FrameReport {
     uint64_t frameID;
     uint64_t inputSampleTime;
@@ -35,7 +38,7 @@ struct FrameReport {
 class LowLatency {
 private:
     LowLatencyTech* currently_active_tech; // TODO: mutex the access???
-    FrameReport frame_reports[64]{};
+    FrameReport frame_reports[FRAME_REPORTS_BUFFER_SIZE]{};
     std::optional<bool> forced_fg;
     bool fg;
     uint32_t delay_deinit = 0;
