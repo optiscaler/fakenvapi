@@ -3,6 +3,7 @@
 #include <dxgi.h>
 #include <d3d11.h>
 #include <windows.h>
+#include <filesystem>		
 #include <nvapi_interface.h>
 #if _MSC_VER
 #include <d3d12.h>
@@ -25,14 +26,21 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
         LowLatencyCtx::init();
         LowLatencyCtxXell::init();
 
-        Config::get().init_config();
-        if (Config::get().get_enable_logs())
-            if (Config::get().get_enable_trace_logs())
-                prepare_logging(spdlog::level::trace);
+        {
+            char dllPath[MAX_PATH];
+            GetModuleFileNameA(hinstDLL, dllPath, MAX_PATH);
+            auto dll = std::filesystem::path(dllPath);
+            std::string path = dll.parent_path().append("fakenvapi.log").string();
+
+            Config::get().init_config();
+            if (Config::get().get_enable_logs())
+                if (Config::get().get_enable_trace_logs())
+                    prepare_logging(spdlog::level::trace, path);
+                else
+                    prepare_logging(spdlog::level::info, path);
             else
-                prepare_logging(spdlog::level::info);
-        else
-            prepare_logging(spdlog::level::off);
+                prepare_logging(spdlog::level::off, path);
+        }
 
         spdlog::critical("fakenvapi version: {}", FAKENVAPI_VERSION);
         spdlog::info("Config enable_trace_logs: {}", Config::get().get_enable_trace_logs() ? "true" : "false");

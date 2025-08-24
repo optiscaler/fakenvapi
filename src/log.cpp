@@ -10,10 +10,10 @@ NvAPI_Status Error(const char* function_name, NvAPI_Status status) {
     return status;
 }
 
-void prepare_logging(spdlog::level::level_enum level) {
+void prepare_logging(spdlog::level::level_enum level, std::string path) {
     try {
         if (level != spdlog::level::off) {
-            auto logger = spdlog::basic_logger_mt("basic_logger", "fakenvapi.log", true);
+            auto logger = spdlog::basic_logger_mt("basic_logger", path, true);
             spdlog::set_default_logger(std::move(logger));
             if (level == spdlog::level::trace)
                 spdlog::set_pattern("[%H:%M:%S.%f] [%L] [thread %t] %v");
