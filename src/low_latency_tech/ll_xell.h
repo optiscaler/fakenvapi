@@ -19,6 +19,7 @@ class XeLL : public virtual LowLatencyTech {
     xell_context_handle_t ctx = nullptr;
     bool sent_sleep_frame_ids[64]{};
     uint64_t simulation_start_last_id {};
+    uint64_t sleep_last_id {};
 
     bool load_dll();
     bool unload_dll();
