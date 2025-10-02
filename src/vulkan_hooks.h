@@ -14,6 +14,9 @@ private:
 
 public:
     static PFN_vkAntiLagUpdateAMD o_vkAntiLagUpdateAMD;
+    static PFN_vkCreateSemaphore o_vkCreateSemaphore;
+    static PFN_vkSignalSemaphore o_vkSignalSemaphore;
+
     static void hook_vulkan(HMODULE vulkanModule);
     static VkResult hkvkCreateDevice(VkPhysicalDevice physicalDevice, VkDeviceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDevice *pDevice);
 };

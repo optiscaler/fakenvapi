@@ -564,6 +564,32 @@ namespace fakenvapi {
     }
 
     NvAPI_Status __cdecl NvAPI_Vulkan_InitLowLatencyDevice(__in HANDLE vkDevice, __out HANDLE *signalSemaphoreHandle) {
+        if (!vkDevice || !signalSemaphoreHandle)
+            return ERROR();
+
+        VkDevice device = reinterpret_cast<VkDevice>(vkDevice);
+
+        VkSemaphoreTypeCreateInfo timelineInfo{};
+        timelineInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO;
+        timelineInfo.pNext = nullptr;
+        timelineInfo.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
+        timelineInfo.initialValue = 0;
+
+        VkSemaphoreCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        createInfo.pNext = &timelineInfo;
+        createInfo.flags = 0;
+
+        VkResult res = VK_ERROR_UNKNOWN;
+
+        if (VulkanHooks::o_vkCreateSemaphore && low_latency_semaphore == VK_NULL_HANDLE)
+            res = VulkanHooks::o_vkCreateSemaphore(device, &createInfo, nullptr, &low_latency_semaphore);
+
+        if (res != VK_SUCCESS)
+            return NVAPI_ERROR;
+
+        *signalSemaphoreHandle = reinterpret_cast<HANDLE>(low_latency_semaphore);
+            
         // It happens automatically on every reflex call
         return OK();
     }
@@ -599,6 +625,17 @@ namespace fakenvapi {
             
         if (!vkDevice)
             return ERROR_VALUE(NVAPI_INVALID_ARGUMENT);
+
+        VkSemaphoreSignalInfo signalInfo{};
+        signalInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO;
+        signalInfo.pNext = nullptr;
+        signalInfo.semaphore = low_latency_semaphore;
+        signalInfo.value = signalValue;
+
+        VkDevice device = reinterpret_cast<VkDevice>(vkDevice);
+
+        if (VulkanHooks::o_vkSignalSemaphore)
+            VulkanHooks::o_vkSignalSemaphore(device, &signalInfo);
 
         return LowLatencyCtx::get()->Sleep(vkDevice);
     }

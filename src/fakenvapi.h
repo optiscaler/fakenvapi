@@ -12,6 +12,7 @@
 
 #include "util.h"
 #include "log.h"
+#include "vulkan_hooks.h"
 
 class LowLatencyCtx {
 public:
@@ -44,6 +45,8 @@ namespace fakenvapi {
     static UINT revision_id = {};
 
     static uint64_t ref_count = 0;
+
+    static VkSemaphore low_latency_semaphore = VK_NULL_HANDLE;
 
     NvAPI_Status __cdecl NvAPI_Initialize();
     NvAPI_Status __cdecl NvAPI_GetInterfaceVersionString(NvAPI_ShortString desc);
