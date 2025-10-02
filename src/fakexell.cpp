@@ -15,7 +15,6 @@ namespace fakexell
             return true;
         }
 
-
         auto xell_module = GetModuleHandleA("libxell.dll");
 
         if (!xell_module) {
