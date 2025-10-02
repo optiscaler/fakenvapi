@@ -734,7 +734,8 @@ namespace fakenvapi {
             return ERROR_VALUE(NVAPI_INVALID_ARGUMENT);
 
         // Random place that I know Opti will call
-        fakexell::Init();
+        if (GetModuleHandleA("libxell.dll"))
+            fakexell::Init();
 
         bool result = LowLatencyCtx::get()->get_low_latency_context(low_latency_context, mode);
 
