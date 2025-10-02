@@ -10,6 +10,9 @@ private:
     AMD::AntiLag2DX12::Context dx12_ctx = {};
     AMD::AntiLag2DX11::Context dx11_ctx = {};
 
+    std::mutex amdxc64_load_mutex;
+    uint64_t amdxc64_load_times = 0;
+
     uint32_t minimum_interval_us = 0;
     
     uint64_t last_sleep_framecount = 0;

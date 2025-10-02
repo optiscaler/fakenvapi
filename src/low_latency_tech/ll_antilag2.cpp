@@ -46,6 +46,14 @@ void AntiLag2::set_fg_type(bool interpolated, uint64_t frame_id) {
 bool AntiLag2::init(IUnknown* pDevice) {
     if (!dx12_ctx.m_pAntiLagAPI && !dx11_ctx.m_pAntiLagAPI) {
         ID3D12Device* device = nullptr;
+
+        // Specifically for Linux where the amdxc64.dll may not be loaded yet
+        {
+            std::scoped_lock lock(amdxc64_load_mutex);
+            LoadLibraryA("amdxc64.dll");
+            amdxc64_load_times++;
+        }
+
         HRESULT hr = pDevice->QueryInterface(__uuidof(ID3D12Device), reinterpret_cast<void**>(&device));
         if (hr == S_OK) {
             AL2Proxy::disableAl2Kill = true;
@@ -97,6 +105,16 @@ void AntiLag2::deinit() {
         spdlog::info("AntiLag 2 DX12 deinit called while inited using context, skipping deinitialization");
         inited_using_context = false;
         return;
+    }
+
+    {
+        std::scoped_lock lock(amdxc64_load_mutex);
+        
+        const auto module = GetModuleHandleA("amdxc64.dll");
+        for (uint64_t i = 0; i < amdxc64_load_times; i++)
+            FreeLibrary(module);
+
+        amdxc64_load_times = 0;
     }
 
     if (dx12_ctx.m_pAntiLagAPI && !AMD::AntiLag2DX12::DeInitialize(&dx12_ctx))
