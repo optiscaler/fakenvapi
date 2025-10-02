@@ -50,16 +50,28 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
         spdlog::info("Config save_pcl_to_file: {}", Config::get().get_save_pcl_to_file() ? "true" : "false");
 
         {
-            // TODO: won't work for late loaded vulkan-1.dll
-            auto vulkan_module = GetModuleHandleA("vulkan-1.dll");
-            VulkanHooks::hook_vulkan(vulkan_module);
-        }
-
-        {
-            char exe_path[MAX_PATH] = {0};
+            char exe_path[MAX_PATH] = { 0 };
             GetModuleFileNameA(nullptr, exe_path, MAX_PATH);
             const char* exe_name = strrchr(exe_path, '\\');
             exe_name = exe_name ? exe_name + 1 : exe_path;
+
+            // TODO: won't work for late loaded vulkan-1.dll
+            auto vulkan_module = GetModuleHandleA("vulkan-1.dll");
+
+            // HACK: Force load vulkan-1 in rtx remix
+            // Avoids having to wait for the game to load it
+            const bool force_load = _stricmp(exe_name, "NvRemixBridge.exe") == 0;
+            if (!vulkan_module && force_load) {
+                vulkan_module = LoadLibraryA("vulkan-1.dll");
+                if (!vulkan_module) {
+                    spdlog::warn("Failed to load vulkan-1.dll");
+                } else {
+                    spdlog::info("vulkan-1.dll loaded");
+                }
+            }
+
+            VulkanHooks::hook_vulkan(vulkan_module);
+
             if (_stricmp(exe_name, "MonsterHunterRise.exe") == 0) {
                 spdlog::info("MonsterHunterRise.exe detected, killing config monitoring");
                 Config::get().kill_config_monitoring();
