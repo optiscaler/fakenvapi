@@ -93,8 +93,19 @@ bool LowLatency::update_low_latency_tech(IUnknown* pDevice) {
 }
 
 void LowLatency::get_latency_result(NV_LATENCY_RESULT_PARAMS* pGetLatencyParams) {
-    // TODO: report all zeros if not enough data
+    if (pGetLatencyParams->version != NV_LATENCY_RESULT_PARAMS_VER1) {
+        spdlog::error("GetLatency: Unsupported version {}", pGetLatencyParams->version);
+        return;
+    }
 
+    // Assume no frame reports collected yet, report all zeros
+    if (frame_reports[FRAME_REPORTS_BUFFER_SIZE - 1].frameID == 0) {
+        std::memset(pGetLatencyParams->frameReport, 0, sizeof(pGetLatencyParams->frameReport));
+        spdlog::warn("GetLatency: Not enough data to report");
+        return;
+    }
+
+    // Sort frame reports, find the oldest
     size_t minIdx = 0;
     uint64_t minID = frame_reports[0].frameID;
     for (size_t i = 1; i < FRAME_REPORTS_BUFFER_SIZE; i++) {

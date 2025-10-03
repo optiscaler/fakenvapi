@@ -30,6 +30,8 @@ bool LowLatency::deinit_current_tech() {
         delete currently_active_tech;
         currently_active_tech = nullptr;
 
+        std::memset(frame_reports, 0, sizeof(frame_reports));
+
         return true;
     }
 
