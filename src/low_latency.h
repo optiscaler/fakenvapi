@@ -37,7 +37,8 @@ struct FrameReport {
 
 class LowLatency {
 private:
-    LowLatencyTech* currently_active_tech; // TODO: mutex the access???
+    std::mutex active_tech_mutex;
+    LowLatencyTech* currently_active_tech;
     FrameReport frame_reports[FRAME_REPORTS_BUFFER_SIZE]{};
     std::optional<bool> forced_fg;
     bool fg;

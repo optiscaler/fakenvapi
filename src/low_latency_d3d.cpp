@@ -9,11 +9,14 @@
 
 // private
 bool LowLatency::update_low_latency_tech(IUnknown* pDevice) {
+    active_tech_mutex.lock();
+
     if (!currently_active_tech) {
         if (forced_low_latency_context && forced_low_latency_tech == Mode::AntiLag2) {
             currently_active_tech = new AntiLag2();
             if (currently_active_tech->init_using_ctx(forced_low_latency_context)) {
                 spdlog::info("LowLatency algo: AntiLag 2 (via context)");
+                active_tech_mutex.unlock();
                 return true;
             }
 
@@ -22,6 +25,7 @@ bool LowLatency::update_low_latency_tech(IUnknown* pDevice) {
             currently_active_tech = new XeLL();
             if (currently_active_tech->init_using_ctx(forced_low_latency_context)) {
                 spdlog::info("LowLatency algo: XeLL (via context)");
+                active_tech_mutex.unlock();
                 return true;
             }
             
@@ -32,6 +36,7 @@ bool LowLatency::update_low_latency_tech(IUnknown* pDevice) {
             currently_active_tech = new AntiLag2();
             if (currently_active_tech->init(pDevice)) {
                 spdlog::info("LowLatency algo: AntiLag 2");
+                active_tech_mutex.unlock();
                 return true;
             }
             
@@ -40,6 +45,7 @@ bool LowLatency::update_low_latency_tech(IUnknown* pDevice) {
             currently_active_tech = new XeLL();
             if (currently_active_tech->init(pDevice)) {
                 spdlog::info("LowLatency algo: XeLL");
+                active_tech_mutex.unlock();
                 return true;
             }
             
@@ -49,10 +55,13 @@ bool LowLatency::update_low_latency_tech(IUnknown* pDevice) {
         currently_active_tech = new LatencyFlex();
         if (currently_active_tech->init(pDevice)) {
             spdlog::info("LowLatency algo: LatencyFlex");
+            active_tech_mutex.unlock();
             return true;
         }
     }
-    
+
+    active_tech_mutex.unlock();
+
     static bool last_force_latencyflex = Config::get().get_force_latencyflex();
     bool force_latencyflex = Config::get().get_force_latencyflex();
     bool change_detected = last_force_latencyflex != force_latencyflex;
@@ -66,6 +75,7 @@ bool LowLatency::update_low_latency_tech(IUnknown* pDevice) {
         return update_low_latency_tech(pDevice);
     };
 
+    // FSR FG might still be using AntiLag 2, give Opti time to set AL2 context to null
     if (change_detected) {
         if (currently_active_tech && currently_active_tech->get_mode() == Mode::AntiLag2) {
             delay_deinit = 50;

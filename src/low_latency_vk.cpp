@@ -8,11 +8,14 @@
 
 // private
 bool LowLatency::update_low_latency_tech(HANDLE vkDevice) {
+    active_tech_mutex.lock();
+
     if (!currently_active_tech) {
         if (!Config::get().get_force_latencyflex()) {
             currently_active_tech = new AntiLagVk();
             if (currently_active_tech->init(nullptr)) {
                 spdlog::info("LowLatency algo: AntiLag Vulkan");
+                active_tech_mutex.unlock();
                 return true;
             }
             
@@ -22,9 +25,12 @@ bool LowLatency::update_low_latency_tech(HANDLE vkDevice) {
         currently_active_tech = new LatencyFlex();
         if (currently_active_tech->init(nullptr)) {
             spdlog::info("LowLatency algo: LatencyFlex");
+            active_tech_mutex.unlock();
             return true;
         }
     }
+
+    active_tech_mutex.unlock();
     
     static bool last_force_latencyflex = Config::get().get_force_latencyflex();
     bool force_latencyflex = Config::get().get_force_latencyflex();
@@ -33,7 +39,7 @@ bool LowLatency::update_low_latency_tech(HANDLE vkDevice) {
     
     if (change_detected) {
         if (deinit_current_tech()) {
-            return update_low_latency_tech((HANDLE) nullptr); // call back to reinit
+            return update_low_latency_tech((HANDLE) nullptr); // call again to reinit
         } else {
             spdlog::error("Couldn't deinitialize low latency tech");
             return false;

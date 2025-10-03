@@ -2,6 +2,8 @@
 
 // private
 void LowLatency::update_effective_fg_state() {
+    std::scoped_lock lock(active_tech_mutex);
+
     if (!currently_active_tech)
         return;
 
@@ -20,6 +22,8 @@ void LowLatency::update_enabled_override() {
 
 // public
 bool LowLatency::deinit_current_tech() {
+    std::scoped_lock lock(active_tech_mutex);
+
     if (currently_active_tech) {
         currently_active_tech->deinit();
 
@@ -33,6 +37,8 @@ bool LowLatency::deinit_current_tech() {
 }
 
 bool LowLatency::get_low_latency_context(void** low_latency_context, Mode* low_latency_tech) {
+    std::scoped_lock lock(active_tech_mutex);
+
     if (!currently_active_tech || !low_latency_context || !low_latency_tech)
         return false;
 
