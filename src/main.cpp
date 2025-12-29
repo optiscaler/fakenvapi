@@ -76,6 +76,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
                 spdlog::info("MonsterHunterRise.exe detected, killing config monitoring");
                 Config::get().kill_config_monitoring();
             }
+
+            if (_stricmp(exe_name, "KunitsuGami.exe") == 0) {
+                spdlog::info("KunitsuGami.exe detected, killing config monitoring");
+                Config::get().kill_config_monitoring();
+            }
         }
 
         AL2Proxy::hookAntiLag();
