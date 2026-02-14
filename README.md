@@ -2,12 +2,12 @@ Project inspired by/based on [dxvk-nvapi](https://github.com/jp7677/dxvk-nvapi/)
 
 By default, logging is disabled. To enable logging, put [fakenvapi.ini](fakenvapi.ini) next to the exe and edit the config.
 
-**_Fakenvapi is now bundled with OptiScaler 0.9+ as `fakenvapi.dll`_**
+**_fakenvapi is now bundled with OptiScaler 0.9+ as `fakenvapi.dll`_**
 
 # Installation
 ***Do not use on Nvidia cards unless you know what you are doing!***
 
-Best to use [OptiScaler](https://github.com/optiscaler/OptiScaler/blob/master/Spoofing.md#nvapi) as a loader for Fakenvapi and all the required GPU spoofing. 
+Best to use [OptiScaler](https://github.com/optiscaler/OptiScaler/blob/master/Spoofing.md#nvapi) as a loader for fakenvapi and all the required GPU spoofing. 
 
 Just put `nvapi64.dll` next to OptiScaler's dll and fakenvapi will be automatically loaded. If it doesn't, then set ``OverrideNvapiDll=true`` in Optiscaler's config file. 
 
